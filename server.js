@@ -2,6 +2,7 @@ const express = require('express');
 const socketio = require('socket.io');
 
 const connections = [];
+const title = 'Untitled Presentation';
 const app = express();
 const server = app.listen(3000);
 const io = socketio.listen(server);
@@ -15,6 +16,8 @@ io.sockets.on('connection', (socket) => {
     socket.disconnect();
     console.log('Disconnected: %s sockets remaining', connections.length);
   });
+
+  socket.emit('welcome', { title });
 
   connections.push(socket);
   console.log('Connected: %s sockets connected', connections.length);
