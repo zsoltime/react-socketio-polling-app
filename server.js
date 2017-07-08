@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const socketio = require('socket.io');
 
 const connections = [];
@@ -9,6 +10,10 @@ const io = socketio.listen(server);
 
 app.use(express.static('./public'));
 app.use(express.static('./node_modules/bootstrap/dist'));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+});
 
 io.sockets.on('connection', (socket) => {
   socket.once('disconnect', () => {

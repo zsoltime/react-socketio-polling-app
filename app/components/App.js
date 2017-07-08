@@ -1,7 +1,12 @@
 import React from 'react';
 import io from 'socket.io-client';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 
 import Header from './Header';
+import Audience from './Audience';
+import Board from './Board';
+import Speaker from './Speaker';
+import Page404 from './Page404';
 
 class App extends React.Component {
   constructor() {
@@ -36,10 +41,17 @@ class App extends React.Component {
   }
   render() {
     return (
-      <Header
-        status={ this.state.status }
-        title={ this.state.title }
-      />
+      <Router>
+        <div>
+          <Header status={ this.state.status } title={ this.state.title } />
+          <Switch>
+            <Route exact path="/" render={() => <Audience {...this.state} />} />
+            <Route path="/board" render={() => <Board {...this.state} />} />
+            <Route path="/speaker" render={() => <Speaker {...this.state} />} />
+            <Route component={Page404} />
+          </Switch>
+        </div>
+      </Router>
     );
   }
 };

@@ -1,8 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 const Header = ({ status, title }) => (
   <header className="row">
+    <Link to="/">Home</Link>
+    <Link to="/board">Board</Link>
+    <Link to="/rffe">404</Link>
     <div className="col-xs-10">
       <h1>{ title }</h1>
     </div>
