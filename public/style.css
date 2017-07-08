@@ -1,0 +1,9 @@
+.connected,
+.disconnected {
+  background-color: lightgreen;
+  border-radius: 50%;
+  height: 4rem;
+  width: 4rem; }
+
+.disconnected {
+  background-color: tomato; }

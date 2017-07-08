@@ -1,0 +1,37 @@
+{
+  "name": "react-socketio-polling-app",
+  "version": "0.1.0",
+  "description": "Polling app with React and Socket.io",
+  "main": "server.js",
+  "repository": "https://github.com/zsoltime/react-socketio-polling-app",
+  "author": "Zsolt Meszaros",
+  "license": "MIT",
+  "dependencies": {
+    "bootstrap": "^3.3.7",
+    "express": "^4.15.3",
+    "prop-types": "^15.5.10",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "socket.io": "^2.0.3",
+    "socket.io-client": "^2.0.3"
+  },
+  "devDependencies": {
+    "autoprefixer": "^7.1.2",
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.4",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "html-webpack-plugin": "^2.29.0",
+    "node-sass": "^4.5.3",
+    "nodemon": "^1.11.0",
+    "postcss-loader": "^2.0.6",
+    "sass-loader": "^6.0.6",
+    "webpack": "^3.1.0"
+  },
+  "scripts": {
+    "prestart": "webpack",
+    "start": "nodemon server.js"
+  }
+}
