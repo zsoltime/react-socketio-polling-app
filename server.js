@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const socketio = require('socket.io');
 
-const audience = [];
+let audience = [];
 const connections = [];
 const title = 'Untitled Presentation';
 const app = express();
@@ -17,8 +17,16 @@ app.get('*', (req, res) => {
 });
 
 io.sockets.on('connection', (socket) => {
-  socket.once('disconnect', () => {
+  socket.once('disconnect', function() {
     connections.splice(connections.indexOf(socket), 1);
+    const newAudience = audience.filter(member => this.id !== member.id);
+
+    if (newAudience.length !== audience.length) {
+      audience = newAudience;
+      io.sockets.emit('audience', newAudience);
+      console.log('Someone has just left, %d members are remaining', audience.length);
+    }
+
     socket.disconnect();
     console.log('Disconnected: %s sockets remaining', connections.length);
   });
