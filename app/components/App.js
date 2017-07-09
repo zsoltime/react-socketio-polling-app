@@ -12,19 +12,27 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
+      audience: [],
+      member: {},
       status: false,
       title: '',
     };
 
     this.connect = this.connect.bind(this);
     this.disconnect = this.disconnect.bind(this);
+    this.emit = this.emit.bind(this);
+    this.joined = this.joined.bind(this);
+    this.onJoin = this.onJoin.bind(this);
+    this.updateAudience = this.updateAudience.bind(this);
     this.welcome = this.welcome.bind(this);
   }
   componentWillMount() {
     this.socket = io('http://localhost:3000');
     this.socket.on('connect', this.connect);
     this.socket.on('disconnect', this.disconnect);
+    this.socket.on('joined', this.joined);
     this.socket.on('welcome', this.welcome);
+    this.socket.on('audience', this.updateAudience);
   }
   connect() {
     this.setState({
@@ -36,6 +44,19 @@ class App extends React.Component {
       status: false,
     });
   }
+  emit(eventName, payload) {
+    this.socket.emit(eventName, payload);
+  }
+  onJoin(name) {
+    this.emit('join', { name });
+    console.log(name);
+  }
+  joined(member) {
+    this.setState({ member });
+  }
+  updateAudience(audience) {
+    this.setState({ audience });
+  }
   welcome({ title }) {
     this.setState({ title });
   }
@@ -45,7 +66,7 @@ class App extends React.Component {
         <div>
           <Header status={ this.state.status } title={ this.state.title } />
           <Switch>
-            <Route exact path="/" render={() => <Audience {...this.state} />} />
+            <Route exact path="/" render={() => <Audience {...this.state} onJoin={ this.onJoin } />} />
             <Route path="/board" render={() => <Board {...this.state} />} />
             <Route path="/speaker" render={() => <Speaker {...this.state} />} />
             <Route component={Page404} />
