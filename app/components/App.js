@@ -14,6 +14,7 @@ class App extends React.Component {
     this.state = {
       audience: [],
       member: {},
+      speaker: '',
       status: false,
       title: '',
     };
@@ -23,27 +24,39 @@ class App extends React.Component {
     this.emit = this.emit.bind(this);
     this.joined = this.joined.bind(this);
     this.onJoin = this.onJoin.bind(this);
-    this.updateAudience = this.updateAudience.bind(this);
-    this.welcome = this.welcome.bind(this);
+    this.onStart = this.onStart.bind(this);
+    this.start = this.start.bind(this);
+    this.updateState = this.updateState.bind(this);
   }
   componentWillMount() {
     this.socket = io('http://localhost:3000');
     this.socket.on('connect', this.connect);
     this.socket.on('disconnect', this.disconnect);
     this.socket.on('joined', this.joined);
-    this.socket.on('welcome', this.welcome);
-    this.socket.on('audience', this.updateAudience);
+    this.socket.on('welcome', this.updateState);
+    this.socket.on('audience', this.updateState);
+    this.socket.on('start', this.start);
+    this.socket.on('end', this.updateState);
   }
   connect() {
     const member = sessionStorage.member ? JSON.parse(sessionStorage.member) : null;
 
-    if (member) { this.emit('join', member); }
+    if (member && member.type === 'member') {
+      this.emit('join', member);
+    } else if (member && member.type === 'speaker') {
+      this.emit('start', {
+        name: member.name,
+        title: sessionStorage.title,
+      });
+    }
 
     this.setState({ status: true });
   }
   disconnect() {
     this.setState({
       status: false,
+      title: 'Disconnected',
+      speaker: '',
     });
   }
   emit(eventName, payload) {
@@ -53,25 +66,30 @@ class App extends React.Component {
     sessionStorage.member = JSON.stringify(member);
     this.setState({ member });
   }
-  onJoin(name) {
-    this.emit('join', { name });
-    console.log(name);
+  onJoin(payload) {
+    this.emit('join', payload);
   }
-  updateAudience(audience) {
-    this.setState({ audience });
+  onStart(payload) {
+    this.emit('start', payload);
   }
-  welcome({ title }) {
-    this.setState({ title });
+  start(presentation) {
+    if (this.state.member.type === 'speaker') {
+      sessionStorage.title = presentation.title;
+    }
+    this.setState(presentation);
+  }
+  updateState(payload) {
+    this.setState(payload);
   }
   render() {
     return (
       <Router>
         <div>
-          <Header status={ this.state.status } title={ this.state.title } />
+          <Header {...this.state} />
           <Switch>
             <Route exact path="/" render={() => <Audience {...this.state} onJoin={ this.onJoin } />} />
             <Route path="/board" render={() => <Board {...this.state} />} />
-            <Route path="/speaker" render={() => <Speaker {...this.state} />} />
+            <Route path="/speaker" render={() => <Speaker {...this.state} onStart={ this.onStart } />} />
             <Route component={Page404} />
           </Switch>
         </div>
