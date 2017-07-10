@@ -3,14 +3,15 @@ import React from 'react';
 import Display from './Display';
 import JoinSpeaker from './JoinSpeaker';
 import Attendance from './Attendance';
+import Questions from './Questions';
 
 const Speaker = (props) => {
-  const { audience, member, status, onStart } = props;
+  const { audience, member, onAsk, onStart, questions, status } = props;
   return (
     <div>
       <Display if={ status }>
         <Display if={ member.name && member.type === 'speaker' }>
-          <p>Questions</p>
+          <Questions questions={questions} onAsk={onAsk}/>
           <Attendance audience={audience} />
         </Display>
         <Display if={ !member.name }>

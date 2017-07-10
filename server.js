@@ -3,9 +3,13 @@ const path = require('path');
 const socketio = require('socket.io');
 
 let audience = [];
+let currentQuestion = false;
+let results = [0, 0, 0, 0];
 let speaker = {};
 let title = 'Untitled Presentation';
 const connections = [];
+const questions = require('./questions');
+
 const app = express();
 const server = app.listen(3000);
 const io = socketio.listen(server);
@@ -68,8 +72,23 @@ io.sockets.on('connection', (socket) => {
     console.log('Presentation started: %s by %s', title, speaker.name);
   });
 
+  socket.on('ask', function(question) {
+    currentQuestion = question;
+    results = [0, 0, 0, 0];
+    io.sockets.emit('ask', currentQuestion);
+    console.log('Question asked: %s', question.q);
+  });
+
+  socket.on('answer', function(choice) {
+    results[choice] += 1;
+    io.sockets.emit('updateResults', results);
+    console.log('One vote for %s - %j', choice, results);
+  });
+
   socket.emit('welcome', {
     audience,
+    currentQuestion,
+    questions,
     speaker: speaker.name,
     title,
   });

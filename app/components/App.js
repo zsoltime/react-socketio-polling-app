@@ -12,17 +12,23 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
+      answer: false,
       audience: [],
+      currentQuestion: false,
       member: {},
+      questions: [],
       speaker: '',
       status: false,
       title: '',
     };
 
+    this.ask = this.ask.bind(this);
     this.connect = this.connect.bind(this);
     this.disconnect = this.disconnect.bind(this);
     this.emit = this.emit.bind(this);
     this.joined = this.joined.bind(this);
+    this.onAnswer = this.onAnswer.bind(this);
+    this.onAsk = this.onAsk.bind(this);
     this.onJoin = this.onJoin.bind(this);
     this.onStart = this.onStart.bind(this);
     this.start = this.start.bind(this);
@@ -37,9 +43,15 @@ class App extends React.Component {
     this.socket.on('audience', this.updateState);
     this.socket.on('start', this.start);
     this.socket.on('end', this.updateState);
+    this.socket.on('ask', this.ask);
+  }
+  ask(currentQuestion) {
+    this.setState({ currentQuestion });
   }
   connect() {
-    const member = sessionStorage.member ? JSON.parse(sessionStorage.member) : null;
+    const member = sessionStorage.member
+      ? JSON.parse(sessionStorage.member)
+      : null;
 
     if (member && member.type === 'member') {
       this.emit('join', member);
@@ -66,6 +78,14 @@ class App extends React.Component {
     sessionStorage.member = JSON.stringify(member);
     this.setState({ member });
   }
+  onAnswer(payload) {
+    this.emit('answer', payload);
+    this.setState({ answer: payload });
+    sessionStorage.answer = payload;
+  }
+  onAsk(payload) {
+    this.emit('ask', payload);
+  }
   onJoin(payload) {
     this.emit('join', payload);
   }
@@ -87,9 +107,29 @@ class App extends React.Component {
         <div>
           <Header {...this.state} />
           <Switch>
-            <Route exact path="/" render={() => <Audience {...this.state} onJoin={ this.onJoin } />} />
-            <Route path="/board" render={() => <Board {...this.state} />} />
-            <Route path="/speaker" render={() => <Speaker {...this.state} onStart={ this.onStart } />} />
+            <Route
+              exact
+              path="/"
+              render={() => (
+                <Audience
+                  {...this.state}
+                  onJoin={this.onJoin}
+                  onAnswer={this.onAnswer} />
+              )}
+            />
+            <Route
+              path="/board"
+              render={() => <Board {...this.state} />}
+            />
+            <Route
+              path="/speaker"
+              render={() => (
+                <Speaker
+                  {...this.state}
+                  onAsk={this.onAsk}
+                  onStart={this.onStart} />
+              )}
+            />
             <Route component={Page404} />
           </Switch>
         </div>
